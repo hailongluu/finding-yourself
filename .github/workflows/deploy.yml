@@ -26,10 +26,6 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
 
-    defaults:
-      run:
-        working-directory: strength-map-app
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -39,21 +35,23 @@ jobs:
         with:
           node-version: '20'
           cache: 'npm'
-          cache-dependency-path: strength-map-app/package-lock.json
+          cache-dependency-path: 'strength-map-app/package-lock.json'
 
       - name: Install dependencies
+        working-directory: strength-map-app
         run: npm ci
 
       - name: Build project
+        working-directory: strength-map-app
         run: npm run build
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
 
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v4
         with:
-          path: strength-map-app/dist
+          path: 'strength-map-app/dist'
 
       - name: Deploy to GitHub Pages
         id: deployment
