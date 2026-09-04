@@ -8,6 +8,7 @@ on:
   push:
     branches:
       - main
+      - claude/web-bucket-list-keumthe-liff-9k4jbupfpds
     paths:
       - "bucket-list-app/**"
       - ".github/workflows/deploy-bucket-list.yml"
