@@ -6,6 +6,8 @@ import { ProgressHeader } from '../components/ProgressHeader'
 import { AddItemForm } from '../components/AddItemForm'
 import { BucketItemRow } from '../components/BucketItemRow'
 import { EmptyState } from '../components/EmptyState'
+import { TemplatePicker } from '../components/TemplatePicker'
+import { TEMPLATES, type TemplateId } from '../templates'
 
 type Filter = 'all' | 'active' | 'done'
 
@@ -13,6 +15,17 @@ export function BucketListPage() {
   const { signOut, session } = useAuth()
   const { items, loading, addItem, toggleItem, removeItem } = useBucketList()
   const [filter, setFilter] = useState<Filter>('all')
+  const [pickerOpen, setPickerOpen] = useState(false)
+  const [template, setTemplate] = useState<TemplateId>(() => {
+    const saved = localStorage.getItem('bucket-list-template')
+    return TEMPLATES.some((item) => item.id === saved) ? (saved as TemplateId) : 'paper'
+  })
+
+  function selectTemplate(next: TemplateId) {
+    setTemplate(next)
+    localStorage.setItem('bucket-list-template', next)
+    setPickerOpen(false)
+  }
 
   const filtered = useMemo(() => {
     if (filter === 'active') return items.filter((i) => !i.is_done)
@@ -23,21 +36,24 @@ export function BucketListPage() {
   const doneCount = items.filter((i) => i.is_done).length
 
   return (
-    <div className="mx-auto min-h-screen max-w-2xl px-6 py-12">
-      <div className="mb-6 flex items-center justify-between">
+    <main className={`bucket-app theme-${template}`}>
+      <div className="bucket-shell">
+      <div className="account-bar">
         <span className="text-xs text-neutral-400 dark:text-neutral-500">{session?.user.email}</span>
-        <button
-          onClick={signOut}
-          className="text-xs text-neutral-500 underline dark:text-neutral-400"
-        >
-          Đăng xuất
-        </button>
+        <div className="account-actions">
+          <button className="style-button" onClick={() => setPickerOpen(true)}>
+            <span aria-hidden="true">◐</span> Đổi giao diện
+          </button>
+          <button onClick={signOut} className="signout-button">Đăng xuất</button>
+        </div>
       </div>
 
-      <ProgressHeader total={items.length} done={doneCount} />
-      <AddItemForm onAdd={addItem} />
+      <section className="bucket-board">
+        <div className="board-decoration" aria-hidden="true"><span>Dream</span><span>Plan</span><span>Live</span></div>
+        <ProgressHeader total={items.length} done={doneCount} />
+        <AddItemForm onAdd={addItem} />
 
-      <div className="mb-4 flex gap-1 text-sm">
+      <div className="filter-bar">
         {(
           [
             ['all', 'Tất cả'],
@@ -48,11 +64,7 @@ export function BucketListPage() {
           <button
             key={key}
             onClick={() => setFilter(key)}
-            className={`rounded-full px-3 py-1 transition-colors ${
-              filter === key
-                ? 'bg-neutral-900 text-white dark:bg-neutral-100 dark:text-neutral-900'
-                : 'text-neutral-500 hover:bg-neutral-100 dark:text-neutral-400 dark:hover:bg-neutral-800'
-            }`}
+            className={filter === key ? 'is-active' : ''}
           >
             {label}
           </button>
@@ -61,13 +73,16 @@ export function BucketListPage() {
 
       {!loading && filtered.length === 0 && <EmptyState />}
 
-      <ul className="flex flex-col gap-2">
+      <ul className="bucket-items">
         <AnimatePresence initial={false}>
           {filtered.map((item) => (
             <BucketItemRow key={item.id} item={item} onToggle={toggleItem} onRemove={removeItem} />
           ))}
         </AnimatePresence>
       </ul>
-    </div>
+      </section>
+      </div>
+      <TemplatePicker open={pickerOpen} selected={template} onSelect={selectTemplate} onClose={() => setPickerOpen(false)} />
+    </main>
   )
 }
