@@ -1,4 +1,4 @@
-name: Build and deploy Bucket List
+name: Validate Bucket List
 
 on:
   pull_request:
@@ -16,10 +16,6 @@ on:
 permissions:
   contents: read
 
-concurrency:
-  group: bucket-list-production
-  cancel-in-progress: false
-
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -36,18 +32,3 @@ jobs:
       - run: npm ci
       - run: npm run lint
       - run: npm run build
-
-  deploy:
-    if: github.event_name != 'pull_request'
-    needs: build
-    runs-on: ubuntu-latest
-    environment: production
-    steps:
-      - uses: actions/checkout@v6
-      - name: Deploy Cloudflare Worker
-        uses: cloudflare/wrangler-action@v4
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          workingDirectory: bucket-list-app
-          command: deploy
