@@ -1,0 +1,53 @@
+name: Build and deploy Bucket List
+
+on:
+  pull_request:
+    paths:
+      - "bucket-list-app/**"
+      - ".github/workflows/deploy-bucket-list.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "bucket-list-app/**"
+      - ".github/workflows/deploy-bucket-list.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: bucket-list-production
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: bucket-list-app
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: bucket-list-app/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run build
+
+  deploy:
+    if: github.event_name != 'pull_request'
+    needs: build
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v6
+      - name: Deploy Cloudflare Worker
+        uses: cloudflare/wrangler-action@v4
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: bucket-list-app
+          command: deploy
