@@ -33,12 +33,12 @@ export function TemplatePicker({ open, selected, onSelect, onClose }: TemplatePi
         <div className="template-panel-head">
           <div>
             <p className="template-kicker">Giao diện của bạn</p>
-            <h2 id="template-title">Chọn một phong cách</h2>
+            <h2 id="template-title">Câu chuyện của bạn trông thế nào?</h2>
           </div>
           <button ref={closeRef} className="template-close" onClick={onClose} aria-label="Đóng">×</button>
         </div>
         <div className="template-grid">
-          {TEMPLATES.map((template, index) => (
+          {TEMPLATES.map((template) => (
             <button
               key={template.id}
               className={`template-card preview-${template.id} ${selected === template.id ? 'is-selected' : ''}`}
@@ -53,7 +53,7 @@ export function TemplatePicker({ open, selected, onSelect, onClose }: TemplatePi
                 <span className="preview-line preview-line-three" />
               </span>
               <span className="template-card-copy">
-                <span><b>{String(index + 1).padStart(2, '0')} · {template.name}</b><small>{template.note}</small></span>
+                <span><b>{template.name}</b><small>{template.note}</small></span>
                 <span className="template-check">✓</span>
               </span>
             </button>
@@ -63,4 +63,3 @@ export function TemplatePicker({ open, selected, onSelect, onClose }: TemplatePi
     </div>
   )
 }
-

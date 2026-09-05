@@ -18,7 +18,7 @@ export function BucketListPage() {
   const [pickerOpen, setPickerOpen] = useState(false)
   const [template, setTemplate] = useState<TemplateId>(() => {
     const saved = localStorage.getItem('bucket-list-template')
-    return TEMPLATES.some((item) => item.id === saved) ? (saved as TemplateId) : 'paper'
+    return TEMPLATES.some((item) => item.id === saved) ? (saved as TemplateId) : 'scrapbook'
   })
 
   function selectTemplate(next: TemplateId) {
@@ -49,6 +49,11 @@ export function BucketListPage() {
       </div>
 
       <section className="bucket-board">
+        <div className="theme-art" aria-hidden="true">
+          <span className="art-card art-card-one" />
+          <span className="art-card art-card-two" />
+          <span className="art-note">collect moments,<br />not things.</span>
+        </div>
         <div className="board-decoration" aria-hidden="true"><span>Dream</span><span>Plan</span><span>Live</span></div>
         <ProgressHeader total={items.length} done={doneCount} />
         <AddItemForm onAdd={addItem} />
